@@ -1,0 +1,83 @@
+<?php
+/**
+ * JavaScript Object Notation
+ * @see https://www.php.net/manual/book.json.php
+ */
+
+
+/**
+ * Auto-set some flags of `json_encode()`
+ * @param mixed $value
+ * @param int $depth
+ * @return string|false
+ */
+function json_encode_pretty($value, $depth = 512) {
+	$json = json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES, $depth);
+	if ($json === false) return false;
+	return preg_replace_callback(
+		'/\n((?:    )+)/',
+		function ($matches) {
+			return "\n" . str_repeat("\t", strlen($matches[1]) / 4 - 1);
+		},
+		$json
+	) ?? false;
+}
+
+
+/**
+ * Decodes a JSON file
+ * @param string $filepath
+ * @param mixed[] $json_args Rest arguments for `json_decode()`
+ * @param mixed[] $file_args Rest arguments for `file_get_contents()`
+ * @return mixed `NULL` if `filepath` is not readable
+ */
+function json_file_read($filepath, $json_args = array(true), $file_args = array()) {
+	if (! is_readable($filepath)) return null;
+	return json_decode(file_get_contents($filepath, ...$file_args), ...$json_args);
+}
+
+
+/**
+ * Writes JSON string into a file
+ * @param string $filepath
+ * @param mixed $value
+ * @param mixed[] $json_args Rest arguments for `json_encode()`
+ * @param mixed[] $file_args Rest arguments for `file_put_contents()`
+ * @return int|false bytes written
+ */
+function json_file_write(
+	$filepath,
+	$value,
+	$json_args = array(JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+	$file_args = array()
+) {
+	return file_put_contents($filepath, json_encode($value, ...$json_args), ...$file_args);
+}
+
+
+/**
+ * Safely get a property from an JSON file
+ * @param string $filepath
+ * @param string $key
+ * @return mixed
+ */
+function json_file_get($filepath, $key) {
+	$data = json_file_read($filepath);
+	if (! $data) return null;
+	return $data[$key] ?? null;
+}
+
+
+/**
+ * Safely set or unset a property within an JSON file; created the file if not exists
+ * @param string $filepath
+ * @param string $key
+ * @param mixed $value
+ * @return int|false size of the file
+ */
+function json_file_set($filepath, $key, $value = null) {
+	$data = json_file_read($filepath) ?? array();
+	if ($value === null) unset($data[$key]);
+	else $data[$key] = $value;
+	return json_file_write($filepath, $data);
+}
