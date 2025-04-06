@@ -33,10 +33,8 @@ function safe_ini_set($option, $value) {
 			ob_implicit_flush($value);
 			return $old;
 		case 'expose_php': {
-			if ($old) {
-				if (! $value) header_remove('X-Powered-By');
-			}
-			else if ($value) header('X-Powered-By: PHP/' . PHP_VERSION);
+			if (! $value) header_remove('X-Powered-By');
+			else header('X-Powered-By: PHP/' . PHP_VERSION);
 			return $old;
 		}
 		case 'opcache.enable': {
