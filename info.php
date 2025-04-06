@@ -12,7 +12,7 @@
  * @param mixed $value
  * @return mixed
  */
-function kong_ini_set($option, $value) {
+function safe_ini_set($option, $value) {
 	$old = ini_get($option);
 	switch ($option) {
 		case 'error_reporting':

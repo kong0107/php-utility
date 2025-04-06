@@ -20,7 +20,7 @@
  * @throws RuntimeException|InvalidArgumentException
  * @return string The header sent
  */
-function kong_set_cookie(
+function set_cookie(
 	$name,
 	$value = '',
 	$max_age = -1,
