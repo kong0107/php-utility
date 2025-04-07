@@ -6,13 +6,14 @@
 
 
 /**
- * Auto-set some flags of `json_encode()`
+ * Force some flags of `json_encode()`, and convert every 4 spaces at the beginning of each line into tab characters.
  * @param mixed $value
+ * @param int $flags
  * @param int $depth
  * @return string|false
  */
-function json_encode_pretty($value, $depth = 512) {
-	$json = json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES, $depth);
+function json_encode_pretty($value, $flags = 0, $depth = 512) {
+	$json = json_encode($value, $flags | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES, $depth);
 	if ($json === false) return false;
 	return preg_replace_callback(
 		'/\n((?:    )+)/',
@@ -21,6 +22,48 @@ function json_encode_pretty($value, $depth = 512) {
 		},
 		$json
 	) ?? false;
+}
+
+
+/**
+ * Encode things into valid JavaScript code but not legal JSON by skipping quotations in keys.
+ * @param mixed $value
+ * @param int $flags `JSON_UNESCAPED_UNICODE` and `JSON_UNESCAPED_SLASHES` are always set.
+ * @param int $depth
+ * @return string|false
+ */
+function json_encode_fake($value, $flags = 0, $depth = 512) {
+	switch (gettype($value)) {
+		case 'boolean':
+			return $value ? 'true' : 'false';
+		case 'integer':
+		case 'double':
+			return (string) $value;
+		case 'array': {
+			if (! $depth) return false;
+			$inner = array();
+			if (array_is_list($value)) {
+				foreach ($value as $v) {
+					$v = json_encode_fake($v, $flags, $depth - 1);
+					if ($v === false) return false;
+					$inner[] = $v;
+				}
+				return '[' . implode(', ', $inner) . ']';
+			}
+			foreach ($value as $k => $v) {
+				if (is_string($k) && ! preg_match('/^[A-Za-z_$][\w$]*$/', $k))
+					$k = json_encode($k, $flags | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+				$v = json_encode_fake($v, $flags, $depth - 1);
+				if ($v === false) return false;
+				$inner[] = "$k: $v";
+			}
+			return '{' . implode(', ', $inner) . '}';
+		}
+		case 'NULL':
+			return 'null';
+		default:
+			return json_encode($value, $flags | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES, $depth - 1);
+	}
 }
 
 
