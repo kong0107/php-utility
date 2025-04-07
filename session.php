@@ -25,8 +25,8 @@ function assert_session_start($options = array(), $exception = 0) {
 				$exception($status);
 				return $status;
 			}
-			if ($exception instanceof Throwable)
-				throw $exception;
+			if ($exception instanceof Throwable) throw $exception;
+			http_response_code(500);
 			exit($exception);
 	}
 }

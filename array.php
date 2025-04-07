@@ -39,3 +39,29 @@ function array_remove_null(&$array) {
 	if ($is_list) $array = array_values($array);
 	return $count;
 }
+
+
+/**
+ * Imitate JavaScript's `Array.prototype.map`
+ * @param ?callable(mixed, int|string): mixed $callback
+ * @param array $array
+ * @return array
+ */
+function array_map_with_key($callback, $array) {
+	return array_map($callback, array_values($array), array_keys($array));
+}
+
+
+/**
+ * Imitate JavaScript's `Array.prototype.reduce`, except the case `initial` is absent
+ * @param array $array
+ * @param callable(mixed, mixed, int|string): mixed
+ * @param mixed $initial If absent, use PHP's `array_reduce()` behavior
+ * @return mixed
+ */
+function array_reduce_with_key($array, $callback, $initial = null) {
+	$accumulator = $initial;
+	foreach ($array as $key => $value)
+		$accumulator = call_user_func($callback, $accumulator, $value, $key);
+	return $accumulator;
+}
