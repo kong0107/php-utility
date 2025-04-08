@@ -12,9 +12,9 @@
  */
 function base64url_decode($string) {
 	return base64_decode(str_pad(
-	    strtr($string, '-_', '+/'),
-	    strlen($string) % 4,
-	    '='
+		strtr($string, '-_', '+/'),
+		strlen($string) % 4,
+		'='
 	));
 }
 
@@ -38,8 +38,8 @@ function base64url_encode($string) {
 function jwt_decode($token, $associative = false) {
 	$parts = explode('.', $token);
 	$result = array(
-	    'header' => json_decode(base64url_decode($parts[0])),
-	    'payload' => json_decode(base64url_decode($parts[1]))
+		'header' => json_decode(base64url_decode($parts[0])),
+		'payload' => json_decode(base64url_decode($parts[1]))
 	);
 	return $associative ? $result : (object) $result;
 }
@@ -56,11 +56,11 @@ function jwt_decode($token, $associative = false) {
  */
 function parse_dataurl($url) {
 	if (preg_match('/^data:(\w+)\/([\w\.\-]+);base64,/', $url, $matches)) {
-	    return array(
-	        'type' => $matchs[0],
-	        'subtype' => $matches[1],
-	        'base64' => substr($url, strlen($matches[0]))
-	    );
+		return array(
+			'type' => $matchs[0],
+			'subtype' => $matches[1],
+			'base64' => substr($url, strlen($matches[0]))
+		);
 	}
 	else throw new ValueError('not a data URL');
 }

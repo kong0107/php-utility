@@ -16,8 +16,8 @@ function curl_fetch($url, $options) {
 	$curl_opts = array(
 		CURLOPT_URL => $url,
 		CURLOPT_RETURNTRANSFER => true,
-	    CURLOPT_FOLLOWLOCATION => true,
-	    CURLOPT_HEADER => true
+		CURLOPT_FOLLOWLOCATION => true,
+		CURLOPT_HEADER => true
 	);
 
 	$body = $options['body'] ?? '';
