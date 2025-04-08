@@ -45,3 +45,31 @@ function set_cookie(
 	header($header, false);
 	return $header;
 }
+
+
+/**
+ * Redirect browser to the target, either before or after headers sent, either to internal or external destination.
+ * @todo Auto-encode to prevent XSS (cross-site scripting) and ensure the header to be legal.
+ * @param string $url
+ * @param int $status HTTP status code, only used if headers are not sent yet.
+ * @param ?string $js_method Method of `window.location` to be called in JavaScript.
+ * 	Null for auto: use `assign()` on external url; use `replace()` on internal url.
+ * @return never
+ */
+function redirect($url, $status = 302, $js_method = null) {
+	if (! headers_sent()) {
+		header("Location: $url", true, $status);
+		exit(0);
+	}
+	while (ob_get_level()) ob_end_clean();
+	echo '<meta http-equiv="refresh" content="0; url=' . $url . '">';
+
+	if (! $js_method) {
+		if (str_starts_with($url, 'https://')
+			&& ! str_starts_with(substr($url, 8), $_SERVER['HTTP_HOST'])
+		) $js_method = 'assign';
+		else $js_method = 'replace';
+	}
+	echo "<script>location.$js_method('$url');</script>";
+	exit(1);
+}

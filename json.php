@@ -106,7 +106,7 @@ function json_file_write(
  * @param mixed[] $file_args Rest arguments for `file_get_contents()`
  * @return mixed
  */
-function json_file_get($filepath, $key, $json_args = array(), $file_args = array()) {
+function json_file_get_prop($filepath, $key, $json_args = array(), $file_args = array()) {
 	$data = json_file_read($filepath, $json_args, $file_args);
 	if (! $data) return null;
 	return $data->$key ?? null;
@@ -120,9 +120,9 @@ function json_file_get($filepath, $key, $json_args = array(), $file_args = array
  * @param mixed $value
  * @return int|false size of the file
  */
-function json_file_set($filepath, $key, $value = null) {
+function json_file_set_prop($filepath, $key, $value = null) {
 	$data = json_file_read($filepath) ?? array();
-	if ($value === null) unset($data[$key]);
-	else $data[$key] = $value;
+	if ($value === null) unset($data->$key);
+	else $data->$key = $value;
 	return json_file_write($filepath, $data);
 }
