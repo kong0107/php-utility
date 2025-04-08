@@ -32,6 +32,6 @@ function exit_json($value, $status = 0) {
 		if ($status) http_response_code($status);
 		header('Content-Type: application/json; charset=utf-8');
 	}
-	echo json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+	echo json_encode_pretty($value);
 	exit($status < 400 ? 0 : 1);
 }
