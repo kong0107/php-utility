@@ -74,7 +74,7 @@ function json_encode_fake($value, $flags = 0, $depth = 512) {
  * @param mixed[] $file_args Rest arguments for `file_get_contents()`
  * @return mixed `NULL` if `filepath` is not readable
  */
-function json_file_read($filepath, $json_args = array(true), $file_args = array()) {
+function json_file_read($filepath, $json_args = array(), $file_args = array()) {
 	if (! is_readable($filepath)) return null;
 	return json_decode(file_get_contents($filepath, ...$file_args), ...$json_args);
 }
@@ -102,12 +102,14 @@ function json_file_write(
  * Safely get a property from an JSON file
  * @param string $filepath
  * @param string $key
+ * @param mixed[] $json_args Rest arguments for `json_decode()`
+ * @param mixed[] $file_args Rest arguments for `file_get_contents()`
  * @return mixed
  */
-function json_file_get($filepath, $key) {
-	$data = json_file_read($filepath);
+function json_file_get($filepath, $key, $json_args = array(), $file_args = array()) {
+	$data = json_file_read($filepath, $json_args, $file_args);
 	if (! $data) return null;
-	return $data[$key] ?? null;
+	return $data->$key ?? null;
 }
 
 
