@@ -48,8 +48,54 @@ function set_cookie(
 
 
 /**
+ * Delete cookies even without knowing its options.
+ * @param string ...$names Names of cookies to delete. Empty for removing all cookies.
+ * @return int Amount of cookies deleted.
+ */
+function delete_cookies_dirty(...$names) {
+	if (empty($_COOKIE)) return 0;
+	if (! count($names)) $names = array_keys($_COOKIE);
+	else $names = array_intersect($names, array_keys($_COOKIE));
+	if (! count($names)) return 0;
+
+	$paths = array('', '/');
+	$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+	$path_parts = array_filter(explode('/', substr($path, 1)));
+	for ($i = 1; $i < count($path_parts); ++$i) {
+		$part = implode('/', array_slice($path_parts, 0, $i));
+		array_push($paths, "/$part", "/$part/");
+	}
+
+	if (preg_match('/^\d+\.\d+\.\d+\.\d+$/', $_SERVER['HTTP_HOST'])) // IPv4
+		$domains = array('', $_SERVER['HTTP_HOST']);
+	else {
+		$domains = array('');
+		$domain_parts = explode('.', $_SERVER['HTTP_HOST']);
+		for ($i = 0; $i < count($domain_parts); ++$i)
+			$domains[] = implode('.', array_slice($domain_parts, $i));
+	}
+
+	foreach ($names as $name) {
+		foreach ($paths as $path) {
+			foreach ($domains as $domain) {
+				foreach (array(false, true) as $secure) {
+					foreach (array(false, true) as $httponly) {
+						foreach (array(null, 'None', 'Lax', 'Strict') as $samesite) {
+							set_cookie($name, '', -1, $path, $domain, $secure, $httponly, $samesite);
+						}
+					}
+				}
+			}
+		}
+	}
+	return count($names);
+}
+
+
+/**
  * Redirect browser to the target, either before or after headers sent, either to internal or external destination.
  * @todo Auto-encode to prevent XSS (cross-site scripting) and ensure the header to be legal.
+ * @todo Make this work even in `<script>`, `<textarea>`, or some HTML attributes.
  * @param string $url
  * @param int $status HTTP status code, only used if headers are not sent yet.
  * @param ?string $js_method Method of `window.location` to be called in JavaScript.
@@ -72,4 +118,27 @@ function redirect($url, $status = 302, $js_method = null) {
 	}
 	echo "<script>location.$js_method('$url');</script>";
 	exit(1);
+}
+
+
+/**
+ * Send `Last-Modified` header by the maximum mtime of files specified;  if that matches `If-Modified-Since`, then response 304 and exit.
+ * @param int|string ...$args Int for timestamp in seconds; string for filepath whose mtime would be used.
+ * @return never|int Exit if `If-Modified-Since` matches; otherwise the new timestamp is returned.
+ */
+function http_304_if_unmodified(...$args) {
+	$max = 0;
+	if (! count($args)) return 0;
+	foreach ($args as $arg) {
+		if (is_string($arg)) $arg = filemtime($arg) ?: 0; // E_WARNING occurs if file not exists
+		if ($max < $arg) $max = $arg;
+	}
+	$last_modified = gmdate(DATE_RFC7231, $max);
+	header("Last-Modified: $last_modified");
+
+	if ($last_modified === ($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? 0)) {
+		http_response_code(304);
+		exit(0);
+	}
+	return $max;
 }
