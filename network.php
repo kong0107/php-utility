@@ -102,7 +102,7 @@ function delete_cookies_dirty(...$names) {
  * 	Null for auto: use `assign()` on external url; use `replace()` on internal url.
  * @return never
  */
-function redirect($url, $status = 302, $js_method = null) {
+function redirect($url, $status = 307, $js_method = null) {
 	if (! headers_sent()) {
 		header("Location: $url", true, $status);
 		exit(0);
