@@ -73,7 +73,9 @@ function curl_fetch($url, $options) {
 	$response = curl_exec($ch);
 	$info = curl_getinfo($ch);
 	$errno = curl_errno($ch);
-	curl_close($ch);
+
+    if (PHP_MAJOR_VERSION >= 8) unset($ch);
+	else curl_close($ch);
 
 	$result = array('info' => $info);
 	if ($errno) {
