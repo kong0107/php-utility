@@ -133,7 +133,7 @@ function http_304_if_unmodified(...$args) {
 		if (is_string($arg)) $arg = filemtime($arg) ?: 0; // E_WARNING occurs if file not exists
 		if ($max < $arg) $max = $arg;
 	}
-	$last_modified = gmdate(DATE_RFC7231, $max);
+	$last_modified = gmdate('D, d M Y H:i:s', $max) . ' GMT'; // RFC7231
 	header("Last-Modified: $last_modified");
 
 	if ($last_modified === ($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? 0)) {

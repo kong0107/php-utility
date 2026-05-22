@@ -31,7 +31,7 @@ function base64url_encode($string) {
 
 /**
  * Decodes data encoded with JWT
- * @param string $string
+ * @param string $token
  * @param bool $associative whether returns an associative array or an object.
  * @return array|object
  */
@@ -77,7 +77,7 @@ function rebuild_url($new_params, $url = '') {
 	$parts = parse_url($url);
 	if (! $parts) throw new InvalidArgumentException('The second argument must be a URL.');
 
-	$pos = str_pos($url, '?');
+	$pos = strpos($url, '?');
 	if ($pos !== false) $url = substr($url, 0, $pos);
 
 	parse_str($parts['query'] ?? '', $old_params);

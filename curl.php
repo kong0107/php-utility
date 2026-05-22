@@ -98,3 +98,22 @@ function curl_fetch($url, $options) {
 
 	return $result;
 }
+
+
+function curl_follow_location(
+	string $url
+) : string {
+	$ch = curl_init($url);
+	curl_setopt_array($ch, array(
+		CURLOPT_NOBODY => true,
+		CURLOPT_FOLLOWLOCATION => true,
+		CURLOPT_MAXREDIRS => 10,
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_USERAGENT => ('curl/' . curl_version()['version'])
+	));
+	curl_exec($ch);
+	$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	if (PHP_MAJOR_VERSION >= 8) unset($ch);
+	else curl_close($ch);
+	return $url;
+}
