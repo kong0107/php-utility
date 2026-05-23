@@ -111,8 +111,8 @@ function curl_follow_location(
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_USERAGENT => ('curl/' . curl_version()['version'])
 	));
-	curl_exec($ch);
-	$url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+	if (curl_exec($ch) === false) error_log(curl_error($ch));
+	else $url = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
 	if (PHP_MAJOR_VERSION >= 8) unset($ch);
 	else curl_close($ch);
 	return $url;
