@@ -142,3 +142,17 @@ function http_304_if_unmodified(...$args) {
 	}
 	return $max;
 }
+
+function http_exit(
+	int $status,
+	string $content = '',
+	string $mime = ''
+) : never {
+	if (!headers_sent()) {
+		http_response_code($status);
+		if ($content && $mime) header("Content-Type: $mime; charset=utf-8");
+	}
+	echo $content;
+	$statusClass = intdiv($status, 100);
+	exit($statusClass === 2 ? 0 : $statusClass);
+}
