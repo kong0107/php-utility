@@ -66,7 +66,7 @@ function http_post(
 function http_post_multipart(
     string $url,
     array $headers,
-    array $params
+    array $parts
 ) : array {
     $boundary = base64_encode(random_bytes(51));
 
@@ -81,7 +81,7 @@ function http_post_multipart(
     if (isset($type_header)) $headers[] = $type_header;
 
     $content = '';
-    foreach ($params as $part) {
+    foreach ($parts as $part) {
         $content .= "--$boundary\r\n";
 
         $content .= "Content-Disposition: form-data; name=\"{$part['name']}\"";
