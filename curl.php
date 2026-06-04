@@ -12,7 +12,10 @@
  * @param array $options
  * @return array
  */
-function curl_fetch($url, $options) {
+function curl_fetch(
+	string $url,
+	array $options = array()
+) : array {
 	$curl_opts = array(
 		CURLOPT_URL => $url,
 		CURLOPT_RETURNTRANSFER => true,
