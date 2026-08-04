@@ -70,7 +70,7 @@ function http_post_multipart(
 ) : array {
     $boundary = base64_encode(random_bytes(51));
 
-    $type_header = 'Content-Type: multipart/form-data; boundary=' . $boundary;
+    $type_header = 'Content-Type: multipart/form-data; boundary="' . $boundary . '"';
     foreach ($headers as $i => $header) {
         if (strpos(strtolower($header), 'content-type:') === 0) {
             $headers[$i] = $type_header;
