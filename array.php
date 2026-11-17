@@ -55,7 +55,7 @@ function array_map_with_key($callback, $array) {
 /**
  * Imitate JavaScript's `Array.prototype.reduce`, except the case `initial` is absent
  * @param array $array
- * @param callable(mixed, mixed, int|string): mixed
+ * @param callable(mixed, mixed, int|string): mixed $callback
  * @param mixed $initial If absent, use PHP's `array_reduce()` behavior
  * @return mixed
  */

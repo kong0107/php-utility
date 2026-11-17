@@ -81,6 +81,19 @@ function json_file_read($filepath, $json_args = array(), $file_args = array()) {
 
 
 /**
+ * Decodes a JSON file, defaults to assoc array
+ * @param string $filepath
+ * @param mixed[] $json_args Rest arguments for `json_decode()`
+ * @param mixed[] $file_args Rest arguments for `file_get_contents()`
+ * @return mixed `NULL` if `filepath` is not readable
+ */
+function json_file_read_assoc($filepath, $json_args = array(true), $file_args = array()) {
+	if (! is_readable($filepath)) return null;
+	return json_decode(file_get_contents($filepath, ...$file_args), ...$json_args);
+}
+
+
+/**
  * Writes JSON string into a file
  * @param string $filepath
  * @param mixed $value
@@ -92,7 +105,7 @@ function json_file_write(
 	$filepath,
 	$value,
 	$json_args = array(JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-	$file_args = array()
+	$file_args = array(LOCK_EX)
 ) {
 	return file_put_contents($filepath, json_encode($value, ...$json_args), ...$file_args);
 }
